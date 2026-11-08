@@ -33,15 +33,29 @@ jobs:
           ls "$HOME/theos/sdks"
           ls "$HOME/theos/toolchain"
 
-      - name: Build
+      
+      - name: Build package
         run: |
+          sudo apt-get install -y dpkg-dev
           make clean
-          make
-          mkdir -p dist
-          find .theos -type f -name 'LitmatchAdControl.dylib' -exec cp {} dist/ \;
-          cp LitmatchAdControl.plist dist/
+          make package
+
+      - name: Extract actual dylib
+        run: |
+          mkdir -p dist extracted
+          for deb in packages/*.deb; do
+            dpkg-deb -x "$deb" extracted
+          done
+          find extracted -type f -name 'LitmatchAdControl.dylib' -exec cp {} dist/ \;
           test -s dist/LitmatchAdControl.dylib
           file dist/LitmatchAdControl.dylib
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LitmatchAdControl-ARM64
+          path: dist/LitmatchAdControl.dylib
+
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
