@@ -1,0 +1,9 @@
+Package: com.example.litmatchadcontrol
+Name: LitmatchAdControl
+Version: 0.1.0
+Architecture: iphoneos-arm
+Description: Diagnostic tweak scaffold for Litmatch 7.75.1. Reports loaded advertising SDK images; does not block ads or alter purchases.
+Maintainer: Local build
+Author: Local build
+Section: Tweaks
+Depends: mobilesubstrate
