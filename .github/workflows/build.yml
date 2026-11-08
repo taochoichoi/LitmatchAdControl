@@ -11,26 +11,42 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: ubuntu-24.04
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bash curl make perl git
 
       - name: Install Theos
         run: |
           bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
           echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
 
+      - name: Check toolchain
+        run: |
+          echo "THEOS=$HOME/theos"
+          ls "$HOME/theos/sdks"
+          ls "$HOME/theos/toolchain"
+
       - name: Build
         run: |
           make clean
           make
           mkdir -p dist
-          find .theos -name 'LitmatchAdControl.dylib' -exec cp {} dist/ \;
+          find .theos -type f -name 'LitmatchAdControl.dylib' -exec cp {} dist/ \;
           cp LitmatchAdControl.plist dist/
           test -s dist/LitmatchAdControl.dylib
           file dist/LitmatchAdControl.dylib
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: LitmatchAdControl-ARM64-diagnostic
           path: dist/
+          if-no-files-found: error
+          retention-days: 7
